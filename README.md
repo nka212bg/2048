@@ -1,4 +1,4 @@
-# 2048
+# 2048 -> A vue.js game reproduction
 
 ## Project setup
 ```
