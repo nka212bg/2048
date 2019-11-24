@@ -14,13 +14,13 @@
           </div>
           <div class="blue-container" style="padding: 5px 15px;">
             <p>best</p>
-            <h2>{{ best }}</h2>
+            <h2>{{ bestScore }}</h2>
           </div>
         </div>
       </div>
       <div class="space-between">
         <div>
-          <p class="button bold" style="margin-bottom: 40px" @click="newGame"><i class="icon">add_circle</i> New Game</p>
+          <p class="button bold" style="margin-bottom: 40px" @click="newGame"><i class="icon">games</i> New Game</p>
           <select v-model="cellRow" style="margin-left: 20px;outline: none;border: none;background: none;">
             <option value="3">3</option>
             <option value="4">4</option>
@@ -51,7 +51,7 @@ export default {
     return {
       cellRow: 4,
       score: 0,
-      best: 0,
+      bestScore: 0,
       cellVal: [],
       cells: null,
       cellSize: null,
@@ -62,7 +62,7 @@ export default {
   },
   methods: {
     newGame() {
-      this.cellVal = [];
+      this.cellVal = [0];
       this.cells = this.cellRow * this.cellRow;
       this.cellSize = 100 / this.cellRow;
       this.gameContainer = document.getElementById("game");
@@ -84,12 +84,73 @@ export default {
 
     rewriteGame() {
       this.gameContainer.innerHTML = "";
-      var newNum = this.randN();
+      var tempArr = [];
+      for (let i = 0; i < this.cellRow; i++) {
+        tempArr.push([]);
+      }
+
+      // this.cellVal[] to array with nested arrays horizontaly
+      for (let i = 0; i < this.cells; i++) {
+        var row = Math.ceil((i + 1) / this.cellRow) - 1;
+        var col = i % this.cellRow;
+        this.keyDirection === "ArrowRight" || this.keyDirection === "ArrowLeft" ? (tempArr[row][col] = this.cellVal[i]) : (tempArr[col][row] = this.cellVal[i]);
+
+        // if (this.keyDirection === "ArrowDown" || this.keyDirection === "ArrowUp") {
+        //   tempArr[col][row] = this.cellVal[i];
+        // }
+      }
+
+      // calculate nested arrays separately ltr (push all the vals to right and merge equal vals)
+      tempArr.forEach(e => {
+        for (let w = 0; w < e.length; w++) {
+          if (this.keyDirection === "ArrowRight" || this.keyDirection === "ArrowDown") {
+            // move all zeros to the beginning
+            if (e[w] === 0) {
+              e.splice(w, 1);
+              e.splice(0, 0, 0);
+            }
+          } else {
+            // move all zeros to the end
+            if (e[w] === 0) {
+              e.splice(w, 1);
+              e.splice(e.length - 1, 0, 0);
+            }
+          }
+
+          // add the equal vals that sits to eachother
+        }
+      });
+
+      // reverse the nested array to an one level array this.cellVal[]
+      console.log(this.cellVal);
+      this.cellVal = [];
+      if (this.keyDirection === "ArrowRight" || this.keyDirection === "ArrowLeft") {
+        // console.log(tempArr);
+        for (let i = 0; i < tempArr.length; i++) {
+          for (let w = 0; w < tempArr[i].length; w++) {
+            this.cellVal.push(tempArr[i][w]);
+          }
+        }
+      } else {
+        for (let i = 0; i < tempArr.length; i++) {
+          for (let w = 0; w < tempArr[i].length; w++) {
+            this.cellVal.push(tempArr[w][i]);
+          }
+        }
+      }
+
+      // console.log(this.cellVal);
+
+      var newNum = this.nextNumber();
       for (let i = 0; i < this.cells; i++) {
         var cellId = `${Math.ceil((i + 1) / this.cellRow)}.${(i + 1) % this.cellRow || this.cellRow}`;
         i + 1 === newNum ? (this.cellVal[i] = 2) : (this.cellVal[i] = 0);
         this.gameContainer.appendChild(this.cell(cellId, this.cellVal[i]));
       }
+
+      this.score = this.cellVal.reduce((a, b) => a + b, 0);
+      if (this.bestScore < this.score) this.bestScore = this.score;
+
       console.log(this.cellVal, newNum, this.keyDirection);
     },
 
@@ -102,8 +163,22 @@ export default {
       return cell;
     },
 
-    randN() {
-      return Math.floor(Math.random() * (this.cellRow * this.cellRow)) + 1;
+    nextNumber() {
+      if (this.cellVal.includes(0)) {
+        var nextNumber = Math.floor(Math.random() * (this.cellRow * this.cellRow));
+        if (this.cellVal[nextNumber] === 0) {
+          // console.log(nextNumber);
+          return nextNumber + 1;
+        } else {
+          return this.nextNumber();
+        }
+      } else {
+        this.gameOver();
+      }
+    },
+
+    gameOver() {
+      console.log("Game over");
     }
 
     // game() {
