@@ -60,11 +60,11 @@ h6 {
   color: dodgerblue;
   padding: 10px 15px;
   border-radius: 5px;
+  border-bottom: 1px solid lightgray;
 }
 
 .button:hover {
   box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.15);
-  border-color: dodgerblue;
   cursor: pointer;
 }
 

@@ -28,13 +28,13 @@
           </select>
           cells
         </div>
-        <div style="font-size: 1.3em; margin-top: -40px; color: #c2c2c2">
-          <p class="icon" :style="`text-align: center; width: 100%; margin-bottom: -5px; ${keyDirection === 'ArrowUp' ? 'color: black' : ''}`">arrow_drop_up</p>
+        <div style="font-size: 1.3em; margin-top: -53px; color: #c2c2c2">
+          <p class="icon" :style="`text-align: center; width: 100%; margin-bottom: -13px; ${keyDirection === 'ArrowUp' ? 'color: black' : ''}`">arrow_drop_up</p>
           <div>
             <span class="icon" :style="`${keyDirection === 'ArrowLeft' ? 'color: black' : ''}`">arrow_left</span>
-            <span class="icon" :style="`${keyDirection === 'ArrowDown' ? 'color: black' : ''}`">arrow_drop_down</span>
             <span class="icon" :style="`${keyDirection === 'ArrowRight' ? 'color: black' : ''}`">arrow_right</span>
           </div>
+          <p class="icon" :style="`text-align: center; width: 100%; margin-top: -13px; display: block; ${keyDirection === 'ArrowDown' ? 'color: black' : ''}`">arrow_drop_down</p>
         </div>
       </div>
     </div>
@@ -89,15 +89,11 @@ export default {
         tempArr.push([]);
       }
 
-      // this.cellVal[] to array with nested arrays horizontaly
+      // this.cellVal[] to array with nested arrays
       for (let i = 0; i < this.cells; i++) {
         var row = Math.ceil((i + 1) / this.cellRow) - 1;
         var col = i % this.cellRow;
         this.keyDirection === "ArrowRight" || this.keyDirection === "ArrowLeft" ? (tempArr[row][col] = this.cellVal[i]) : (tempArr[col][row] = this.cellVal[i]);
-
-        // if (this.keyDirection === "ArrowDown" || this.keyDirection === "ArrowUp") {
-        //   tempArr[col][row] = this.cellVal[i];
-        // }
       }
 
       // calculate nested arrays separately ltr (push all the vals to right and merge equal vals)
@@ -109,15 +105,29 @@ export default {
               e.splice(w, 1);
               e.splice(0, 0, 0);
             }
+            // add the equal vals that sits to eachother
+            if (e[w] === e[w + 1] && e[w] !== 0) {
+              e[w + 1] = e[w + 1] * 2;
+              e[w] = 0;
+            } else if (e[w] === e[w - 1] && e[w] !== 0) {
+              e[w] = e[w] * 2;
+              e[w - 1] = 0;
+            }
           } else {
             // move all zeros to the end
             if (e[w] === 0) {
               e.splice(w, 1);
               e.splice(e.length - 1, 0, 0);
             }
+            // add the equal vals that sits to eachother
+            if (e[w] === e[w + 1] && e[w] !== 0) {
+              e[w] = e[w] * 2;
+              e[w + 1] = 0;
+            } else if (e[w] === e[w - 1] && e[w] !== 0) {
+              e[w - 1] = e[w - 1] * 2;
+              e[w] = 0;
+            }
           }
-
-          // add the equal vals that sits to eachother
         }
       });
 
@@ -142,10 +152,26 @@ export default {
       // console.log(this.cellVal);
 
       var newNum = this.nextNumber();
+      if (!newNum) {
+        // GAME OVER
+        this.cellVal = [];
+        return (document.getElementById("game").innerHTML = `<span style="width: 100%; height: 100%; text-align: center;">GAME OVER<br><span style="font-size: 0.5em; width: 50%; box-shadow: none; font-weight: normal; padding-right: 20px;">Your score is ${this.score} points</span></span>`);
+        return;
+      }
       for (let i = 0; i < this.cells; i++) {
-        var cellId = `${Math.ceil((i + 1) / this.cellRow)}.${(i + 1) % this.cellRow || this.cellRow}`;
-        i + 1 === newNum ? (this.cellVal[i] = 2) : (this.cellVal[i] = 0);
-        this.gameContainer.appendChild(this.cell(cellId, this.cellVal[i]));
+        var newCell = null;
+        if (i + 1 === newNum) {
+          this.cellVal[i] = 2;
+          newCell = this.cell(2);
+          newCell.style.background = "green";
+           newCell.style.color = "darkgreen";
+        } else if (!this.cellVal[i]) {
+          this.cellVal[i] = 0;
+          newCell = this.cell(0);
+        } else {
+          newCell = this.cell(this.cellVal[i]);
+        }
+        this.gameContainer.appendChild(newCell);
       }
 
       this.score = this.cellVal.reduce((a, b) => a + b, 0);
@@ -154,9 +180,8 @@ export default {
       console.log(this.cellVal, newNum, this.keyDirection);
     },
 
-    cell(cellId, cellVal) {
+    cell(cellVal) {
       var cell = document.createElement("SPAN");
-      cell.id = cellId;
       cell.style = `width: ${this.cellSize}%; height: ${this.cellSize}%`;
       cellVal !== 0 ? ((cell.style.background = `hsl(${(360 / 100) * cellVal}, 100%, 30%)`), (cell.style.color = "white")) : ((cell.style.background = "none"), (cell.style.color = "none"));
       cell.innerHTML = cellVal;
@@ -173,12 +198,8 @@ export default {
           return this.nextNumber();
         }
       } else {
-        this.gameOver();
+        return false;
       }
-    },
-
-    gameOver() {
-      console.log("Game over");
     }
 
     // game() {
@@ -193,7 +214,6 @@ export default {
     //     document.body.addEventListener("keyup", gameRefresh);
     //   }
     // },
-  },
-  mounted() {}
+  }
 };
 </script>
