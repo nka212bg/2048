@@ -6,7 +6,7 @@
         <div>
           <div class="space-between">
             <h1 style="font-size: 2.5em;">2048</h1>
-            <div><input type="radio" name="level" value="easy" v-model="level" />Easy <input type="radio" name="level" value="hard" v-model="level" />Hard</div>
+            <div><input type="radio" name="level" value="easy" v-model="level" /><span style="padding-right: 7px"> Easy</span> <input type="radio" name="level" value="hard" v-model="level" />Hard</div>
           </div>
           <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
         </div>
