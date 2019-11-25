@@ -110,6 +110,9 @@ export default {
       // clear the game field
       this.gameContainer.innerHTML = "";
 
+      // this array clones the original field with only one purpose, to prevent the animations in fields that are not changed down the road
+      var originalTempArr = this.cellVal;
+
       // creates a temporary array and pre populate nested arrays at the count of cellRow value
       var tempArr = [];
       for (let i = 0; i < this.cellRow; i++) {
@@ -223,6 +226,9 @@ export default {
           newCell = this.cell(0);
         } else {
           newCell = this.cell(this.cellVal[i]);
+          if (this.cellVal[i] === originalTempArr[i]) {
+            newCell.className = "";
+          }
         }
         this.gameContainer.appendChild(newCell);
       }
