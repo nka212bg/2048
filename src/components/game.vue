@@ -75,7 +75,8 @@ export default {
     };
   },
   methods: {
-    /** New game */ 
+    /** New game */
+
     newGame() {
       this.scoreEasy = 0;
       this.scoreHard = 0;
@@ -266,7 +267,7 @@ export default {
         }
       }
 
-      cell.innerHTML = cellVal;
+      cell.innerHTML = cellVal || "";
       return cell;
     },
 
